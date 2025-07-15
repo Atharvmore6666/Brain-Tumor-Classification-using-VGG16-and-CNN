@@ -1,5 +1,6 @@
-streamlit
-tensorflow
-pillow
-numpy
-requests
+streamlit==1.46.1
+tensorflow==2.12.0
+pillow==10.4.0
+numpy==1.26.4
+requests==2.32.3
+rich==14.0.0
