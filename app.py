@@ -11,7 +11,7 @@ st.set_page_config(page_title="Brain Tumor Classifier", layout="centered", icon=
 
 # --- Configuration ---
 # Google Drive download link for the .keras model file
-GDRIVE_ZIP_URL = "https://drive.google.com/file/d/1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx/view?usp=drive_link"
+GDRIVE_ZIP_URL = "https://drive.google.com/file/d/1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx"
 # The name of the model file after it's extracted from the zip
 MODEL_FILE_NAME = "vgg16_brain_tumor.keras" 
 
