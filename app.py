@@ -5,6 +5,10 @@ from tensorflow.keras.preprocessing import image
 from PIL import Image
 import requests, zipfile, io, os
 
+# --- Streamlit Page Configuration ---
+# This must be called only once and as the very first Streamlit command.
+st.set_page_config(page_title="Brain Tumor Classifier", layout="centered", icon="🧠")
+
 # --- Configuration ---
 # Google Drive download link for the .keras model file
 GDRIVE_ZIP_URL = "https://drive.google.com/file/d/1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx/view?usp=drive_link"
@@ -95,7 +99,6 @@ def main():
     """
     Main function to set up the Streamlit application UI and logic.
     """
-    st.set_page_config(page_title="Brain Tumor Classifier", layout="centered", icon="🧠")
     st.title("🧠 Brain Tumor Classification using VGG16")
     st.markdown("Upload an MRI brain image to classify it into one of the four tumor types: `glioma`, `meningioma`, `no_tumor`, or `pituitary`.")
     st.markdown("---")
@@ -130,4 +133,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
