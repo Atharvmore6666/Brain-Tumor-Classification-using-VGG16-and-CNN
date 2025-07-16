@@ -1,4 +1,4 @@
-tensorflow==2.12.0
+tensorflow-nightly
 streamlit==1.46.1
 pillow==10.4.0
 numpy==1.26.4
