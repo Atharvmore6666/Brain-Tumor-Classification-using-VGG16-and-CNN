@@ -7,7 +7,7 @@ from PIL import Image
 import requests, zipfile, io, os
 
 # Google Drive download link and target file name
-GDRIVE_ZIP_URL = "https://drive.google.com/file/d/1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx/view?usp=drive_link"
+GDRIVE_ZIP_URL = "https://drive.google.com/uc?id=1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx"
 MODEL_DIR = "vgg16_brain_tumor.keras"
 MODEL_FILE = os.path.join(MODEL_DIR, "model.weights.h5")
 
