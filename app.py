@@ -5,98 +5,52 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
 import os
-import zipfile
+# Removed zipfile and shutil as we're no longer extracting a zip
 import gdown # Library for downloading Google Drive files
-import shutil # For removing directories
 
 # --- Configuration ---
-# Google Drive file ID for your vgg16_brain_tumor.keras.zip file.
-# IMPORTANT: This ID must be for a zip file where 'vgg16_brain_tumor.keras'
-#            is at the root level of the zip's contents.
-#            Example: If you open the zip, you should immediately see
-#            'vgg16_brain_tumor.keras' folder, and inside that, 'model.weights.h5'.
-#            Or even better, if the zip contains directly 'model.weights.h5',
-#            'config.json', 'metadata.json'.
-#            The previous screenshot showed 'vgg16_brain_tumor.keras' as the directory
-#            containing these files. So, the zip should contain the *contents*
-#            of that 'vgg16_brain_tumor.keras' folder, or the folder itself at the root.
-#            Given the error, it's likely the zip contains:
-#            your_zip.zip/
-#            └── vgg16_brain_tumor.keras/
-#                ├── config.json
-#                ├── metadata.json
-#                └── model.weights.h5
-#            This is what the code expects.
-GDRIVE_FILE_ID = "1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx" 
+# Google Drive file ID for your 'vgg16_brain_tumor.h5' file.
+# IMPORTANT: This ID must be for the 'vgg16_brain_tumor.h5' file itself,
+#            not a zip file or a folder.
+GDRIVE_FILE_ID = "1A6SS7eZNdE2k1fN3bDSYM1u6WrjwcHsi" # This ID should be for your vgg16_brain_tumor.h5 file
 
-# The name of the directory that will be extracted (e.g., 'vgg16_brain_tumor.keras')
-MODEL_ROOT_DIR = "vgg16_brain_tumor.keras" 
-
-# The full path to the actual .h5 model file inside the extracted directory
-MODEL_FILE_PATH = os.path.join(MODEL_ROOT_DIR, "model.weights.h5")
+# The full path to the actual .h5 model file after it's downloaded.
+# It will be downloaded directly into the application's root directory.
+MODEL_FILE_PATH = "vgg16_brain_tumor.h5" # <<< UPDATED THIS FILENAME
 
 # Class names for prediction results
 CLASS_NAMES = ['glioma', 'meningioma', 'no_tumor', 'pituitary']
 
-# --- Model Download and Extraction Function ---
+# --- Model Download Function ---
 @st.cache_resource
-def download_and_extract_model():
+def download_model():
     """
-    Downloads the model zip from Google Drive and extracts it.
+    Downloads the model.h5 file directly from Google Drive.
     Uses st.cache_resource to ensure this runs only once.
     """
     # Check if the expected model weights file already exists
     if os.path.exists(MODEL_FILE_PATH):
-        st.success("Model already downloaded and extracted.")
+        st.success("Model already downloaded.")
         return
 
     st.info("Downloading model, please wait... This may take a moment.")
     
-    # Define a temporary path for the downloaded zip file
-    zip_file_path = "model.zip" 
-    
     try:
-        # Use gdown to download the file directly from Google Drive
-        # 'quiet=False' shows progress, 'fuzzy=True' allows slight variations in ID
-        gdown.download(id=GDRIVE_FILE_ID, output=zip_file_path, quiet=False, fuzzy=True)
+        # Use gdown to download the .h5 file directly from Google Drive
+        gdown.download(id=GDRIVE_FILE_ID, output=MODEL_FILE_PATH, quiet=False, fuzzy=True)
         
-        # Verify if the zip file was actually downloaded
-        if not os.path.exists(zip_file_path):
-            st.error("Gdown failed to download the model zip. Please check the Google Drive file ID or its public accessibility permissions.")
-            st.stop()
-
-        st.success("Model zip downloaded successfully. Extracting...")
-
-        # Ensure the target directory for extraction is clean before extracting
-        if os.path.exists(MODEL_ROOT_DIR):
-            st.warning(f"Removing existing directory '{MODEL_ROOT_DIR}' to ensure a fresh extraction.")
-            shutil.rmtree(MODEL_ROOT_DIR)
-
-        # Extract the downloaded zip file
-        with zipfile.ZipFile(zip_file_path, 'r') as z:
-            # Extract all contents to the current directory ('.').
-            # This assumes 'vgg16_brain_tumor.keras' folder is at the root of the zip.
-            z.extractall(".") 
-        st.success("Model extracted successfully.")
-        
-        # Verify that the expected model file exists after extraction
+        # Verify if the .h5 file was actually downloaded
         if not os.path.exists(MODEL_FILE_PATH):
-            st.error(f"Error: Expected model file '{MODEL_FILE_PATH}' not found after extraction. "
-                     "Please check the zip's internal structure. The 'model.weights.h5' "
-                     f"should be directly inside the '{MODEL_ROOT_DIR}' folder within the zip.")
+            st.error("Gdown failed to download the model file. Please check the Google Drive file ID or its public accessibility permissions.")
             st.stop()
-        else:
-            st.info(f"Confirmed model weights file exists at: {MODEL_FILE_PATH}")
+
+        st.success("Model downloaded successfully.")
+        st.info(f"Confirmed model file exists at: {MODEL_FILE_PATH}")
 
     except Exception as e:
-        st.error(f"An error occurred during model download or extraction: {e}. "
+        st.error(f"An error occurred during model download: {e}. "
                  "Please ensure the Google Drive file is publicly accessible and the ID is correct.")
         st.stop()
-    finally:
-        # Clean up the temporary zip file after extraction (or failure)
-        if os.path.exists(zip_file_path):
-            os.remove(zip_file_path)
-            st.info("Cleaned up temporary zip file.")
 
 # --- Model Loading Function ---
 @st.cache_resource
@@ -145,7 +99,7 @@ st.markdown("Upload an MRI brain image to classify it into one of the four tumor
 
 # --- Main Application Flow ---
 # 1. Download and load the model (this will run only once due to @st.cache_resource)
-download_and_extract_model()
+download_model()
 model = load_vgg_model()
 
 # 2. File Uploader for MRI Image
