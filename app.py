@@ -1,5 +1,4 @@
 import os
-# Force protobuf to use Python implementation
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 import streamlit as st
