@@ -5,26 +5,27 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from PIL import Image
 import os
-import zipfile # Keep this for extraction
+import zipfile
 import gdown # New import
 
 # Google Drive file ID (not the full URL) and target file name
 GDRIVE_FILE_ID = "1UUKRfakOuIGlFlaH0vCkUEoyDRbKP2vx" # Only the ID part
-MODEL_DIR = "vgg16_brain_tumor.keras"
+MODEL_ROOT_DIR = "vgg16_brain_tumor.keras" # This is the directory name
+MODEL_FILE_PATH = os.path.join(MODEL_ROOT_DIR, "model.weights.h5") # THIS IS THE CRUCIAL CHANGE
 
 # Ensure model is downloaded and extracted
 def download_and_extract_model():
-    # Check if the model directory exists and seems complete
-    if not os.path.exists(MODEL_DIR) or not os.path.exists(os.path.join(MODEL_DIR, 'keras_metadata.pb')):
+    # Check if the model weights file exists, which is the actual model
+    if not os.path.exists(MODEL_FILE_PATH):
         st.info("Downloading model, please wait...")
-
+        
         # Define the path where the zip file will be temporarily saved
         zip_file_path = "model.zip" 
-
+        
         try:
             # Use gdown to download the file directly
             gdown.download(id=GDRIVE_FILE_ID, output=zip_file_path, quiet=False, fuzzy=True)
-
+            
             if not os.path.exists(zip_file_path):
                 st.error("Gdown failed to download the model zip. Check file ID or permissions.")
                 st.stop()
@@ -34,12 +35,20 @@ def download_and_extract_model():
             # Extract the downloaded zip file
             with zipfile.ZipFile(zip_file_path, 'r') as z:
                 # Clean up existing directory if it's incomplete or old
-                if os.path.exists(MODEL_DIR):
+                if os.path.exists(MODEL_ROOT_DIR):
                     import shutil
-                    st.warning(f"Removing existing directory '{MODEL_DIR}' to ensure fresh extraction.")
-                    shutil.rmtree(MODEL_DIR)
+                    st.warning(f"Removing existing directory '{MODEL_ROOT_DIR}' to ensure fresh extraction.")
+                    shutil.rmtree(MODEL_ROOT_DIR)
                 z.extractall(".") # Extracts the 'vgg16_brain_tumor.keras' directory here
             st.success("Model extracted successfully.")
+            
+            # --- DEBUGGING / VERIFICATION ---
+            if not os.path.exists(MODEL_FILE_PATH):
+                st.error(f"Error: Expected model file '{MODEL_FILE_PATH}' not found after extraction. Please check the zip's internal structure.")
+                st.stop()
+            else:
+                st.info(f"Confirmed model weights file exists at: {MODEL_FILE_PATH}")
+            # --- END DEBUGGING / VERIFICATION ---
 
             # Clean up the downloaded zip file
             os.remove(zip_file_path)
@@ -49,22 +58,22 @@ def download_and_extract_model():
             st.error(f"Failed to download or extract model: {e}. Please ensure the Google Drive file is publicly accessible.")
             st.stop()
 
-# ... (rest of your code, load_vgg_model, predict_image, Streamlit UI) ...
 # Load model
 @st.cache_resource
 def load_vgg_model():
     try:
-        model = tf.keras.models.load_model(MODEL_DIR)
+        # Load the model directly from the .h5 file inside the directory
+        model = tf.keras.models.load_model(MODEL_FILE_PATH) 
         return model
     except Exception as e:
-        st.error(f"Error loading the model: {e}. Make sure the '{MODEL_DIR}' directory exists and contains a valid Keras model.")
+        st.error(f"Error loading the model from '{MODEL_FILE_PATH}': {e}. Ensure the .h5 file is valid and accessible.")
         st.stop()
 
 # Class names
 CLASS_NAMES = ['glioma', 'meningioma', 'no_tumor', 'pituitary']
 
 # Prediction function
-def predict_image(img, model): # Pass model as an argument
+def predict_image(img, model): 
     img = img.resize((128, 128))
     img_array = image.img_to_array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
@@ -91,6 +100,5 @@ if uploaded_file is not None:
     st.image(img, caption="Uploaded MRI Image", use_column_width=True)
 
     if st.button("Predict Tumor Type"):
-        # Pass the model to the predict_image function
         label, confidence = predict_image(img, model) 
         st.success(f"🧠 Predicted Tumor Type: `{label}` with {confidence*100:.2f}% confidence.")
