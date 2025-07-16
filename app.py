@@ -1,3 +1,7 @@
+import os
+# Force protobuf to use Python implementation
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
 import streamlit as st
 import numpy as np
 import tensorflow as tf
@@ -51,4 +55,5 @@ if uploaded_file is not None:
         label, confidence = predict_image(interpreter, image)
         st.success(f"🧠 Predicted Tumor Type: `{label}`")
         st.info(f"Confidence: {confidence:.2%}")
+
 
