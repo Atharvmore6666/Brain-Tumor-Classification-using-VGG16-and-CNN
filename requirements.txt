@@ -1,6 +1,5 @@
-tensorflow-nightly
-streamlit==1.46.1
-pillow==10.4.0
-numpy==1.26.4
-requests==2.32.3
-rich==14.0.0
+tensorflow==2.12.0
+streamlit==1.26.0
+pillow==10.2.0
+numpy==1.24.3
+requests==2.31.0
