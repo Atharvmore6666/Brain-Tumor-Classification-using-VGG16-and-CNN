@@ -12,7 +12,7 @@ import gdown # Library for downloading Google Drive files
 # Google Drive file ID for your 'vgg16_brain_tumor.h5' file.
 # IMPORTANT: This ID must be for the 'vgg16_brain_tumor.h5' file itself,
 #            not a zip file or a folder.
-GDRIVE_FILE_ID = "1A6SS7eZNdE2k1fN3bDSYM1u6WrjwcHsi" # https://drive.google.com/file/d/1A6SS7eZNdE2k1fN3bDSYM1u6WrjwcHsi/view?usp=sharing This ID should be for your vgg16_brain_tumor.h5 file
+GDRIVE_FILE_ID = "12O9CXkrpHBwZ48V41fevaqVrbddmxsGA" #  https://drive.google.com/file/d/12O9CXkrpHBwZ48V41fevaqVrbddmxsGA/view?usp=sharing  This ID should be for your vgg16_brain_tumor.h5 file
 
 # The full path to the actual .h5 model file after it's downloaded.
 # It will be downloaded directly into the application's root directory.
